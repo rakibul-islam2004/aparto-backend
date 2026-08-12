@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma.service";
-import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto, AddressResponseDto } from "../dto/user.dto";
+import { UpdateProfileDto, CreateAddressDto, UpdateAddressDto, AddressResponseDto } from "./dto/user.dto";
 import { RoomType } from "@prisma/client";
 
 @Injectable()

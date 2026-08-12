@@ -47,9 +47,6 @@ export class CreateCategoryDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-
-  @IsOptional()
-  isActive?: boolean;
 }
 
 export class UpdateCategoryDto {

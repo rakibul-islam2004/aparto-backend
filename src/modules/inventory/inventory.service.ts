@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma.service";
-import { CreateWarehouseDto, UpdateWarehouseDto, UpdateInventoryDto, CreateInventoryMovementDto, WarehouseResponseDto, InventoryResponseDto } from "../dto/inventory.dto";
+import { CreateWarehouseDto, UpdateWarehouseDto, UpdateInventoryDto, CreateInventoryMovementDto, WarehouseResponseDto, InventoryResponseDto } from "./dto/inventory.dto";
 import { MovementType } from "@prisma/client";
 
 @Injectable()

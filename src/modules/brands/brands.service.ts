@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma.service";
-import { CreateBrandDto, UpdateBrandDto, BrandResponseDto } from "../dto/brand.dto";
+import { CreateBrandDto, UpdateBrandDto, BrandResponseDto } from "./dto/brand.dto";
 
 @Injectable()
 export class BrandsService {

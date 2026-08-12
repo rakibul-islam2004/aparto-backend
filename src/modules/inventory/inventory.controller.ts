@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Param, Patch, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards } from "@nestjs/common";
 import { InventoryService } from "./inventory.service";
-import { CreateWarehouseDto, UpdateWarehouseDto, UpdateInventoryDto, CreateInventoryMovementDto } from "../dto/inventory.dto";
+import { CreateWarehouseDto, UpdateWarehouseDto, UpdateInventoryDto, CreateInventoryMovementDto } from "./dto/inventory.dto";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 
 @Controller("inventory")

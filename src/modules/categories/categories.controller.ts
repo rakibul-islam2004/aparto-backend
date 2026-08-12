@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Query } from "@nestjs/common";
 import { CategoriesService } from "./categories.service";
-import { CreateCategoryDto, UpdateCategoryDto } from "../dto/category.dto";
+import { CreateCategoryDto, UpdateCategoryDto } from "./dto/category.dto";
 import { RoomType } from "@prisma/client";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 

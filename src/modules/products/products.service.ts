@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma.service";
-import { CreateProductDto, UpdateProductDto, ProductResponseDto, CreateVariantDto, UpdateVariantDto, VariantResponseDto } from "../dto/product.dto";
-import { BarcodesService } from "../../barcodes/barcodes.service";
+import { CreateProductDto, UpdateProductDto, ProductResponseDto, CreateVariantDto, UpdateVariantDto, VariantResponseDto } from "./dto/product.dto";
+import { BarcodesService } from "../barcodes/barcodes.service";
 
 @Injectable()
 export class ProductsService {
