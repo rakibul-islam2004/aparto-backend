@@ -37,3 +37,26 @@ export class RefreshDto {
   @IsNotEmpty()
   refreshToken: string;
 }
+
+export class SendEmailVerificationDto {
+  @IsEmail()
+  email: string;
+}
+
+export class VerifyEmailDto {
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}
+
+export class SendPhoneVerificationDto {
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+}
+
+export class VerifyPhoneDto {
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}

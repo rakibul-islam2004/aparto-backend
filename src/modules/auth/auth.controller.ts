@@ -1,10 +1,21 @@
 import { Controller, Post, Get, Body, UseGuards, Req } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { RegisterDto, LoginDto, RefreshDto } from "./dto/auth.dto";
+import {
+  RegisterDto,
+  LoginDto,
+  RefreshDto,
+  SendEmailVerificationDto,
+  VerifyEmailDto,
+  SendPhoneVerificationDto,
+  VerifyPhoneDto,
+} from "./dto/auth.dto";
 import { Public } from "../../common/decorators/public.decorator";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { AuthGuard } from "@nestjs/passport";
+import { RolesGuard } from "../../common/guards/roles.guard";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { Role } from "@prisma/client";
 
 @Controller("auth")
 export class AuthController {
@@ -40,6 +51,37 @@ export class AuthController {
     return this.authService.getMe(userId);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SUPER_ADMIN, Role.ADMIN)
+  @Get("users")
+  getUsers() {
+    return this.authService.getAllUsers();
+  }
+
+  @Public()
+  @Post("request-email-verification")
+  requestEmailVerification(@Body() dto: SendEmailVerificationDto) {
+    return this.authService.requestEmailVerification(dto.email);
+  }
+
+  @Public()
+  @Post("verify-email")
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto.token);
+  }
+
+  @Public()
+  @Post("request-phone-verification")
+  requestPhoneVerification(@Body() dto: SendPhoneVerificationDto) {
+    return this.authService.requestPhoneVerification(dto.phone);
+  }
+
+  @Public()
+  @Post("verify-phone")
+  verifyPhone(@Body() dto: VerifyPhoneDto) {
+    return this.authService.verifyPhone(dto.token);
+  }
+
   @Public()
   @Get("oauth/google")
   @UseGuards(AuthGuard("google"))
@@ -55,5 +97,4 @@ export class AuthController {
     const user = req.user;
     return this.authService.createSessionAndTokens(user.id, user.email);
   }
-
 }
