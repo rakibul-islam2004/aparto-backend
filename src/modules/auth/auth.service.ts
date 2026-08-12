@@ -147,4 +147,11 @@ export class AuthService {
       return { success: false };
     }
   }
+
+  // Public helper to create session and tokens for OAuth flows or external callers
+  async createSessionAndTokens(userId: string, email: string) {
+    const session = await this.createSession(userId);
+    const tokens = this.generateTokens(userId, email, session.sessionToken);
+    return { userId, ...tokens };
+  }
 }
