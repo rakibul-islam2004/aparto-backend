@@ -8,6 +8,7 @@ import { BrandsModule } from "./modules/brands/brands.module";
 import { ProductsModule } from "./modules/products/products.module";
 import { CartModule } from "./modules/cart/cart.module";
 import { WishlistModule } from "./modules/wishlist/wishlist.module";
+import { OrdersModule } from "./modules/orders/orders.module";
 import { InventoryModule } from "./modules/inventory/inventory.module";
 import { BarcodesModule } from "./modules/barcodes/barcodes.module";
 import { PaymentsModule } from "./modules/payments/payments.module";
@@ -28,6 +29,7 @@ import { CmsModule } from "./modules/cms/cms.module";
     ProductsModule,
     CartModule,
     WishlistModule,
+    OrdersModule,
     InventoryModule,
     BarcodesModule,
     PaymentsModule,
