@@ -4,7 +4,7 @@ import { RegisterDto, LoginDto, RefreshDto } from "./dto/auth.dto";
 import { Public } from "../../common/decorators/public.decorator";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("auth")
 export class AuthController {
@@ -41,31 +41,19 @@ export class AuthController {
   }
 
   @Public()
-  @Get('oauth/google')
-  @UseGuards(AuthGuard('google'))
+  @Get("oauth/google")
+  @UseGuards(AuthGuard("google"))
   googleAuth() {
     // initiates Google OAuth2 login flow
   }
 
   @Public()
-  @Get('oauth/google/callback')
-  @UseGuards(AuthGuard('google'))
+  @Get("oauth/google/callback")
+  @UseGuards(AuthGuard("google"))
   async googleAuthRedirect(@Req() req: any) {
     // req.user is populated by GoogleStrategy
     const user = req.user;
     return this.authService.createSessionAndTokens(user.id, user.email);
   }
 
-  @Public()
-  @Get('oauth/facebook')
-  @UseGuards(AuthGuard('facebook'))
-  facebookAuth() {}
-
-  @Public()
-  @Get('oauth/facebook/callback')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookAuthRedirect(@Req() req: any) {
-    const user = req.user;
-    return this.authService.createSessionAndTokens(user.id, user.email);
-  }
 }
