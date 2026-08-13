@@ -30,7 +30,7 @@ export class ProductsService {
     return this.mapProductToResponse(product);
   }
 
-  async findAll(filters?: { categoryId?: string; brandId?: string; status?: string; search?: string }) {
+  async findAll(filters?: { categoryId?: string; brandId?: string; status?: string; search?: string; page?: number; limit?: number }) {
     const where: any = {};
     if (filters?.categoryId) where.categoryId = filters.categoryId;
     if (filters?.brandId) where.brandId = filters.brandId;
@@ -42,12 +42,28 @@ export class ProductsService {
       ];
     }
 
-    const products = await this.prisma.product.findMany({
-      where,
-      include: { category: true, brand: true, variants: true, media: true },
-      orderBy: { createdAt: "desc" },
-    });
-    return products.map(p => this.mapProductToResponse(p));
+    const page = filters?.page && filters.page > 0 ? filters.page : 1;
+    const limit = filters?.limit && filters.limit > 0 ? filters.limit : 20;
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        include: { category: true, brand: true, variants: true, media: true },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return {
+      data: products.map(p => this.mapProductToResponse(p)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async search(query: string) {
