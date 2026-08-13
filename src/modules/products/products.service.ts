@@ -50,6 +50,43 @@ export class ProductsService {
     return products.map(p => this.mapProductToResponse(p));
   }
 
+  async search(query: string) {
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+
+    const products = await this.prisma.product.findMany({
+      where: {
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+          { tags: { has: query } },
+        ],
+        status: "ACTIVE",
+      },
+      include: { category: true, brand: true, variants: true, media: { where: { isPrimary: true } } },
+      take: 20,
+      orderBy: { createdAt: "desc" },
+    });
+
+    const suggestions = new Set<string>();
+    products.forEach((p) => {
+      p.tags.forEach((tag: string) => {
+        if (tag.toLowerCase().includes(query.toLowerCase())) {
+          suggestions.add(tag);
+        }
+      });
+      if (p.name.toLowerCase().includes(query.toLowerCase())) {
+        suggestions.add(p.name);
+      }
+    });
+
+    return {
+      products: products.map(p => this.mapProductToResponse(p)),
+      suggestions: Array.from(suggestions).slice(0, 10),
+    };
+  }
+
   async findOne(id: string): Promise<ProductResponseDto> {
     const product = await this.prisma.product.findUnique({
       where: { id },
