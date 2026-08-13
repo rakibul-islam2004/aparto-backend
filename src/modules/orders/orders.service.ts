@@ -140,9 +140,52 @@ export class OrdersService {
       where: { orderNumber, customerId },
       include: { items: { include: { variant: { include: { product: { include: { media: { where: { isPrimary: true } } } } } } } } },
     });
-
     if (!order) throw new NotFoundException("Order not found");
     return this.mapToResponse(order);
+  }
+
+  async findByOrderNumberPublic(orderNumber: string): Promise<any> {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  select: { id: true, name: true, slug: true, media: { where: { isPrimary: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!order) throw new NotFoundException("Order not found");
+    return {
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      total: Number(order.total),
+      shippingAddress: order.shippingAddress,
+      createdAt: order.createdAt,
+      items: order.items.map((item) => ({
+        quantity: item.quantity,
+        price: Number(item.price),
+        total: Number(item.total),
+        variant: item.variant
+          ? {
+              sku: item.variant.sku,
+              product: {
+                name: item.variant.product.name,
+                slug: item.variant.product.slug,
+                media: item.variant.product.media?.[0] ? [{ url: item.variant.product.media[0].url }] : [],
+              },
+            }
+          : undefined,
+      })),
+    };
   }
 
   async update(id: string, customerId: string, dto: UpdateOrderDto): Promise<OrderResponseDto> {

@@ -36,6 +36,11 @@ export class OrdersController {
     return this.ordersService.findByOrderNumber(orderNumber, customerId);
   }
 
+  @Get("track/:orderNumber")
+  async trackOrder(@Param("orderNumber") orderNumber: string) {
+    return this.ordersService.findByOrderNumberPublic(orderNumber);
+  }
+
   @Patch(":id")
   @UseGuards(JwtAuthGuard)
   updateOrder(@CurrentUser("id") customerId: string, @Param("id") id: string, @Body() dto: UpdateOrderDto) {
