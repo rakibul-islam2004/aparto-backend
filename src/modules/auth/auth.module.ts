@@ -6,6 +6,7 @@ import { AuthService } from "./auth.service";
 import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./jwt.strategy";
 import { GoogleStrategy } from "./google.strategy";
+import { FacebookStrategy } from "./facebook.strategy";
 import { RolesGuard } from "../../common/guards/roles.guard";
 
 @Module({
@@ -23,7 +24,7 @@ import { RolesGuard } from "../../common/guards/roles.guard";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, RolesGuard],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, FacebookStrategy, RolesGuard],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Req } from "@nestjs/common";
+import { Controller, Post, Get, Body, UseGuards, Req, Res } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import {
   RegisterDto,
@@ -92,9 +92,29 @@ export class AuthController {
   @Public()
   @Get("oauth/google/callback")
   @UseGuards(AuthGuard("google"))
-  async googleAuthRedirect(@Req() req: any) {
+  async googleAuthRedirect(@Req() req: any, @Res() res: any) {
     // req.user is populated by GoogleStrategy
     const user = req.user;
-    return this.authService.createSessionAndTokens(user.id, user.email);
+    const tokens = await this.authService.createSessionAndTokens(user.id, user.email);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(`${frontendUrl}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`);
+  }
+
+  @Public()
+  @Get("oauth/facebook")
+  @UseGuards(AuthGuard("facebook"))
+  facebookAuth() {
+    // initiates Facebook OAuth2 login flow
+  }
+
+  @Public()
+  @Get("oauth/facebook/callback")
+  @UseGuards(AuthGuard("facebook"))
+  async facebookAuthRedirect(@Req() req: any, @Res() res: any) {
+    // req.user is populated by FacebookStrategy
+    const user = req.user;
+    const tokens = await this.authService.createSessionAndTokens(user.id, user.email);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    res.redirect(`${frontendUrl}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`);
   }
 }
