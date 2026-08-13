@@ -15,6 +15,7 @@ import { PaymentsModule } from "./modules/payments/payments.module";
 import { CourierModule } from "./modules/courier/courier.module";
 import { CmsModule } from "./modules/cms/cms.module";
 import { ReviewsModule } from "./modules/reviews/reviews.module";
+import { DashboardModule } from "./modules/dashboard/dashboard.module";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ReviewsModule } from "./modules/reviews/reviews.module";
     CourierModule,
     CmsModule,
     ReviewsModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],
