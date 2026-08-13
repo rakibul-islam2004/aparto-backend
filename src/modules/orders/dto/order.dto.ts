@@ -2,9 +2,11 @@ import { IsString, IsOptional, IsBoolean, IsEnum, IsDecimal, IsInt, Min, Max } f
 import { OrderStatus, PaymentStatus } from "@prisma/client";
 
 export class CreateOrderDto {
+  @IsOptional()
   @IsEnum(OrderStatus)
   status?: OrderStatus;
 
+  @IsOptional()
   @IsEnum(PaymentStatus)
   paymentStatus?: PaymentStatus;
 
@@ -17,6 +19,11 @@ export class CreateOrderDto {
 
   @IsOptional()
   billingAddress: Record<string, any>;
+
+  @IsOptional()
+  @IsDecimal()
+  @Min(0)
+  shipping?: number;
 
   @IsOptional()
   @IsString()

@@ -9,51 +9,90 @@ export class OrdersService {
   async create(customerId: string, dto: CreateOrderDto): Promise<OrderResponseDto> {
     const cart = await this.prisma.cart.findUnique({
       where: { userId: customerId },
-      include: { items: { include: { variant: true } } },
+      include: { items: { include: { variant: { include: { inventory: { include: { warehouse: true } } } } } } },
     });
 
     if (!cart || cart.items.length === 0) {
       throw new BadRequestException("Cart is empty");
     }
 
+    // Validate stock availability
+    for (const item of cart.items) {
+      const inventory = item.variant?.inventory?.[0];
+      const availableStock = inventory?.available ?? 0;
+      if (availableStock < item.quantity) {
+        throw new BadRequestException(
+          `Insufficient stock for ${item.variant?.product?.name || 'product'}. Available: ${availableStock}, Requested: ${item.quantity}`
+        );
+      }
+    }
+
     const subtotal = cart.items.reduce((sum, item) => sum + Number(item.variant.price) * item.quantity, 0);
-    const shipping = dto.shippingAddress ? Number(dto.shippingAddress) : 0;
+    const shipping = dto.shipping ?? 0;
     const tax = 0;
     const discount = 0;
     const total = subtotal + shipping + tax - discount;
 
     const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}`;
 
-    const order = await this.prisma.order.create({
-      data: {
-        orderNumber,
-        customerId,
-        status: dto.status || "PENDING_PAYMENT",
-        paymentStatus: dto.paymentStatus || "PENDING",
-        subtotal,
-        discount,
-        shipping,
-        tax,
-        total,
-        paidAmount: 0,
-        dueAmount: total,
-        couponCode: dto.couponCode,
-        shippingAddress: dto.shippingAddress,
-        billingAddress: dto.billingAddress,
-        notes: dto.notes,
-        items: {
-          create: cart.items.map((item) => ({
-            variantId: item.variantId,
-            quantity: item.quantity,
-            price: Number(item.variant.price),
-            total: Number(item.variant.price) * item.quantity,
-          })),
+    const order = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.order.create({
+        data: {
+          orderNumber,
+          customerId,
+          status: dto.status || "PENDING_PAYMENT",
+          paymentStatus: dto.paymentStatus || "PENDING",
+          subtotal,
+          discount,
+          shipping,
+          tax,
+          total,
+          paidAmount: 0,
+          dueAmount: total,
+          couponCode: dto.couponCode,
+          shippingAddress: dto.shippingAddress,
+          billingAddress: dto.billingAddress,
+          notes: dto.notes,
+          items: {
+            create: cart.items.map((item) => ({
+              variantId: item.variantId,
+              quantity: item.quantity,
+              price: Number(item.variant.price),
+              total: Number(item.variant.price) * item.quantity,
+            })),
+          },
         },
-      },
-      include: { items: true },
-    });
+        include: { items: true },
+      });
 
-    await this.prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
+      // Reserve stock
+      for (const item of cart.items) {
+        const inventory = item.variant?.inventory?.[0];
+        if (inventory) {
+          await tx.inventory.update({
+            where: { id: inventory.id },
+            data: {
+              reserved: { increment: item.quantity },
+              available: { decrement: item.quantity },
+            },
+          });
+
+          await tx.inventoryMovement.create({
+            data: {
+              inventoryId: inventory.id,
+              type: "SHIPMENT",
+              quantity: item.quantity,
+              reason: "Order reservation",
+              reference: order.orderNumber,
+            },
+          });
+        }
+      }
+
+      await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+
+      return created;
+    });
 
     return this.mapToResponse(order);
   }
