@@ -22,7 +22,7 @@ export class OrdersService {
       const availableStock = inventory?.available ?? 0;
       if (availableStock < item.quantity) {
         throw new BadRequestException(
-          `Insufficient stock for ${item.variant?.product?.name || 'product'}. Available: ${availableStock}, Requested: ${item.quantity}`
+          `Insufficient stock for product. Available: ${availableStock}, Requested: ${item.quantity}`
         );
       }
     }
